@@ -2,10 +2,10 @@ package com.hp.pwp.capstone
 
 import org.junit.Test
 
-public class BinToDecTest extends GroovyTestCase {
+public class WorkerB extends GroovyTestCase {
   @Test
   void testBinaryToIntegerGood() {
-	Random rnd = new Random();
+/*	Random rnd = new Random();
 	def b = new toBin();
 
 	for(int i = 0; i < 100; i++)
@@ -20,9 +20,9 @@ public class BinToDecTest extends GroovyTestCase {
 	    assert(b.isBinary(input))
 	}
 
-	
+*/	
 	}
-
+/*
    void testAlpha() {
         Random rnd = new Random()
 	    def b = new toBin()
@@ -79,5 +79,5 @@ public class BinToDecTest extends GroovyTestCase {
 
     }
  
-
+*/
 }
