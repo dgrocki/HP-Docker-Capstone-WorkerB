@@ -31,10 +31,7 @@ class BeanstalkClient{
 			
 		JobImpl job = connection.reserve();
 		String s = new String(job.data);
-		println s;
-		
 		connection.delete(job.jobId);
-			
 		return s;
 	}
 	//put a new job on the riak queue
