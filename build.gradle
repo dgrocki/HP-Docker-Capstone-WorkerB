@@ -13,20 +13,18 @@ plugins {
 	id 'java'
 	id 'application'
 	id 'com.github.johnrengelman.shadow' version '4.0.3'
-	id 'maven'
 	
 }
 application {
-	mainClassName = 'com.hp.pwp.capstone.WorkerB'
+	mainClassName = 'com.hp.pwp.capstone.PDFFormat'
 }
 dependencies {
     // Use the latest Groovy version for building this library
     compile 'org.codehaus.groovy:groovy-all:2.4.15'
-
+    compile 'org.apache.pdfbox:pdfbox:2.0.13'
     // Use the awesome Spock testing and specification framework
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
-
-   compile group: 'com.surftools', name: 'BeanstalkClient' , version: '1.4.6' 
+    implementation 'com.google.code.gson:gson:2.8.5'
 }
 
 // In this section you declare where to find the dependencies of your project
@@ -34,16 +32,12 @@ repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
-    maven{
-    	url 'https://mvnrepository.com/artifact/com.surftools/BeanstlkdClient'
-	url 'http://repo.maven.apache.org/maven2'	    
-	}
     mavenCentral()
 }
 
 jar {
 	manifest {
-		attributes "Main-Class": "com.hp.pwp.capstone.WorkerB" ;
+		attributes "Main-Class": "com.hp.pwp.capstone.PDFFormat" ;
 	}
 }
 
@@ -52,20 +46,20 @@ task uberjar(type: Jar, dependsOn: [':compileJava', ':compileGroovy', 'compileSo
     from configurations.runtime.asFileTree.files.collect { zipTree(it) }
 
     manifest {
-        attributes 'Main-Class': 'com.hp.pwp.capstone.WorkerB'
+        attributes 'Main-Class': 'com.hp.pwp.capstone.PDFFormat'
     }
 }
 
-//task buildImage(type:Exec) {
-//    commandLine 'docker', 'build', '-t', 'worker_b', '.'
-//}
+task buildImage(type:Exec) {
+    commandLine 'docker', 'build', '-t', 'workerb', '.'
+}
 
-//task runImage(type:Exec) {
-//    commandLine 'docker', 'run', '-i', 'latest'
-//}
+task runImage(type:Exec) {
+    commandLine 'docker', 'run', '-i', 'workerb'
+}
 
 
-//build.finalizedBy(buildImage)
+build.finalizedBy(buildImage)
 //build.finalizedBy(runImage)
 
 
