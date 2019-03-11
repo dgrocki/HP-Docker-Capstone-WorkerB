@@ -26,7 +26,7 @@ import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject
 public class PDFFormat {
 	public static void main(String [] args) {
 		//JSON string
-		String json = "{" + "'path': '/mnt/TestPDF.pdf'," + "'outputPath': '/mnt/FinalPDF.pdf'," + "'WID': 1019," + "'JID': 1109," + "'pdfLength': 4" + "}"
+		String json = "{" + "'path': '/mnt/TestPDF.pdf'," + "'outputPath': '/mnt/FinalPDF.pdf'," + "'WID': 1019," + "'JID': 1109," + "'pdfLength': 9" + "}"
 		
 		//Convert our JSON to JAVA
 		JsontoJava data = new Gson().fromJson(json, JsontoJava.class)
@@ -64,73 +64,86 @@ class JsontoJava {
 //Function to handle the input to pdfs.
 class InputPDF {
 	public void getPages(int pdflength, String path, String outputpath){
-	//This gets rid of all the warnings caused by not having fonts installed
-	//System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
-    File pdfFile = new File(path);
-    File outPdfFile = new File(outputpath);
-	PDDocument originalPdf = null
-	PDDocument outPdf = null
+		//Get the file path for the PDF we are using and the path to the new PDF that will be created.
+		File pdfFile = new File(path);
+		File outPdfFile = new File(outputpath);
+		PDDocument originalPdf = null
+		PDDocument outPdf = null
 
-	originalPdf = PDDocument.load(pdfFile);
-	outPdf = new PDDocument();
-	LayerUtility layerUtility = new LayerUtility(outPdf)
-	PDRectangle pdfFrame = originalPdf.getPage(0).getCropBox()
-	PDFormXObject formPdf = layerUtility.importPageAsForm(originalPdf, 0)
+		//Here I am loading in the pdf we are using as well as creating the new output pdf.
+		originalPdf = PDDocument.load(pdfFile);
+		outPdf = new PDDocument();
+		//This is the layer utility we use to set the position of each pdf on the larger page.
+		LayerUtility layerUtility = new LayerUtility(outPdf)
+		//Grab the first page from the pdf.
+		PDRectangle pdfFrame = originalPdf.getPage(0).getCropBox()
+		PDFormXObject formPdf = layerUtility.importPageAsForm(originalPdf, 0)
 
-	// Create output PDF frame
-	float width = pdfFrame.getWidth()*2
-	float height =	pdfFrame.getHeight()*2
-	PDRectangle outPdfFrame = new PDRectangle(width, height)
+		// Create output PDF frame
+		float width = pdfFrame.getWidth()*2
+		float height =	pdfFrame.getHeight()*2
+		PDRectangle outPdfFrame = new PDRectangle(width, height)
 
-	// Create an output page.
-	COSDictionary dict = new COSDictionary()
-	dict.setItem(COSName.TYPE, COSName.PAGE)
-	dict.setItem(COSName.MEDIA_BOX, outPdfFrame)
-	dict.setItem(COSName.CROP_BOX, outPdfFrame)
-	dict.setItem(COSName.ART_BOX, outPdfFrame)
-	PDPage outPdfPage = new PDPage(dict)
-	outPdf.addPage(outPdfPage)
-
-	int i= 0
-	for(i;i<pdflength;i++){
-
-			// Turn each PDF into a form object so that it can be inserted in a certain part of the page.
-
+		// Create an output page.
+		COSDictionary dict = new COSDictionary()
+		dict.setItem(COSName.TYPE, COSName.PAGE)
+		dict.setItem(COSName.MEDIA_BOX, outPdfFrame)
+		dict.setItem(COSName.CROP_BOX, outPdfFrame)
+		dict.setItem(COSName.ART_BOX, outPdfFrame)
+		PDPage outPdfPage = new PDPage(dict)
+		outPdf.addPage(outPdfPage)
+	
+		//These are the four positions we will use to place pages on the larger pages so that there are four pdfs on a single page.
+		AffineTransform bottomLeft = new AffineTransform()
+		AffineTransform topLeft = AffineTransform.getTranslateInstance(0.0, pdfFrame.getHeight())
+		AffineTransform bottomRight = AffineTransform.getTranslateInstance(pdfFrame.getWidth(), 0.0)
+		AffineTransform topRight = AffineTransform.getTranslateInstance(pdfFrame.getWidth(), pdfFrame.getHeight())
+		int i= 0
+		int count = 1
+		for(i;i<pdflength;i++){
 			// Add the pages to their correct position on the single page pdf being created.
-			if(i == 0){
+			//If it is the first of four pages it is placed in the top left.
+			if(count == 1){
 				pdfFrame = originalPdf.getPage(i).getCropBox()
 				formPdf = layerUtility.importPageAsForm(originalPdf, i)
-				AffineTransform bottomLeft = new AffineTransform()
-				layerUtility.appendFormAsLayer(outPdfPage, formPdf, bottomLeft, "bottomleft")
+				layerUtility.appendFormAsLayer(outPdfPage, formPdf, topLeft, "topleft"+Integer.toString(i))
 			}
-
-			if(i == 1){
+			//If it is the second of four pages it will be placed in the top right.
+			if(count == 2){
 				pdfFrame = originalPdf.getPage(i).getCropBox()
 				formPdf = layerUtility.importPageAsForm(originalPdf, i)
-				AffineTransform bottomRight = AffineTransform.getTranslateInstance(pdfFrame.getWidth(), 0.0)
-				layerUtility.appendFormAsLayer(outPdfPage, formPdf, bottomRight, "bottomright")
+				layerUtility.appendFormAsLayer(outPdfPage, formPdf, topRight, "topright"+Integer.toString(i))
 			}
-
-			if(i == 2){
+			//If it is the third of four pages it will be placed in the bottom left.
+			if(count == 3){
 				pdfFrame = originalPdf.getPage(i).getCropBox()
 				formPdf = layerUtility.importPageAsForm(originalPdf, i)
-				AffineTransform topLeft = AffineTransform.getTranslateInstance(0.0, pdfFrame.getHeight())
-				layerUtility.appendFormAsLayer(outPdfPage, formPdf, topLeft, "topleft")
+				layerUtility.appendFormAsLayer(outPdfPage, formPdf, bottomLeft, "bottomleft"+Integer.toString(i))
 			}
-
-			if(i == 3){
+			//If it is the fourth of four page it will be placed in the bottom right.
+			if(count == 4){
 				pdfFrame = originalPdf.getPage(i).getCropBox()
 				formPdf = layerUtility.importPageAsForm(originalPdf, i)
-				AffineTransform topRight = AffineTransform.getTranslateInstance(pdfFrame.getWidth(), pdfFrame.getHeight())
-				layerUtility.appendFormAsLayer(outPdfPage, formPdf, topRight, "topright")
-						//Output the finished PDF.
+				layerUtility.appendFormAsLayer(outPdfPage, formPdf, bottomRight, "bottomright"+Integer.toString(i))
+				//Here we are creating a new blank page to add more pages if necessary.
+				if(i != pdflength-1){
+					dict = new COSDictionary()
+					dict.setItem(COSName.TYPE, COSName.PAGE)
+					dict.setItem(COSName.MEDIA_BOX, outPdfFrame)
+					dict.setItem(COSName.CROP_BOX, outPdfFrame)
+					dict.setItem(COSName.ART_BOX, outPdfFrame)
+					outPdfPage = new PDPage(dict)
+					outPdf.addPage(outPdfPage)
+				}
+					count=0
+			}
+			count++
+			//Output the finished PDF if we are done.
+			if(i == pdflength-1){
 				outPdf.save(outPdfFile)
 				if (originalPdf != null) originalPdf.close()
 				if (outPdf != null) outPdf.close()
 			}
-
-	
-		
-	} 
-}
+		} 	
+	}
 }
