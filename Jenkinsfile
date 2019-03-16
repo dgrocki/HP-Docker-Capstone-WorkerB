@@ -25,7 +25,7 @@ node('docker') {
 			 reportTitles: ''
 	])
 	//Post Jacoco test coverage report
-	jacoco classPattern: '**/build/classes', execPattern: '**/build/jacoco/**.exec', inclusionPattern: '**/*.class', sourceInclusionPattern: '**/*.groovy', sourcePattern: '**/src/main/groovy'
+	jacoco classPattern: '**/build/classes',exclusionPattern: '**/BeanstalkClient.class', execPattern: '**/build/jacoco/**.exec', inclusionPattern: '**/*.class', sourceInclusionPattern: '**/*.groovy', sourcePattern: '**/src/main/groovy'
 	}	
 
 	stage('Build image') {
