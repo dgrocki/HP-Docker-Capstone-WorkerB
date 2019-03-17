@@ -122,7 +122,6 @@ public class PDFFormat {
 
 
 
-
 //Convert our JSON to JAVA
 
 //Functions that handle the JSON conversions
