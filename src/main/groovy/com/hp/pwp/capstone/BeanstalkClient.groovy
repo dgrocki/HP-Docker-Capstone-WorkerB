@@ -16,7 +16,7 @@ class BeanstalkClient{
 	public void sendWork(String json){
 		long priority = 0;
 		int delaySeconds = 0;
-		int timeToRun = 10;
+		int timeToRun = 100;
 		byte[] data = json.getBytes();
 
 		connection.put(priority, delaySeconds, timeToRun, data);
@@ -31,17 +31,19 @@ class BeanstalkClient{
 			
 		JobImpl job = connection.reserve();
 		String s = new String(job.data);
-		println s;
-		
 		connection.delete(job.jobId);
-			
 		return s;
 	}
 	//put a new job on the riak queue
 	public void send_to_work_manager(String json){
 		connection.useTube("riak");
 		sendWork(json);
-		
+
+		connection.watch("riak");
+	//	JobImpl job = connection.reserve();
+	//	String s = new String(job.data);
+	//	println s;
+			
 		
 	}
 	//put a job on the status queue
