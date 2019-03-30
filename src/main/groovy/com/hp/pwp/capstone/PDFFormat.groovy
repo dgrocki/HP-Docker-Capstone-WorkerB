@@ -21,30 +21,40 @@ import org.apache.pdfbox.cos.COSDictionary
 import org.apache.pdfbox.multipdf.LayerUtility
 import org.apache.pdfbox.pdmodel.graphics.PDXObject
 import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject
+import groovy.json.JsonSlurper
+import groovy.transform.Synchronized
 
 
 public class PDFFormat {
-
-	private JsontoJava data;
-
-	PDFFormat(String s){
-		data = new Gson().fromJson(s, JsontoJava.class)
-
-			print s;
+	
+	PDFFormat(){
+	
 	}
-	public void start(){
+	@Synchronized
+	public void start(String s){
 		//Get the file path for the PDF we are using and the path to the new PDF that will be created.
-		int pdflength = data.pdfLength;
+		def parser = new JsonSlurper();
+		def data = parser.parseText(s)
+		print data;
+		
+
+		int pdflength = data.pageLength;
 		String path = data.path;
-		String outputpath = data.outputPath;
+		String outputpath = data.outPath;
+		println path;
+		println outputpath;
 		File pdfFile = new File(path);
+		println "made file1"
 		File outPdfFile = new File(outputpath);
+		println "made file2"
 		PDDocument originalPdf = null
 			PDDocument outPdf = null
 
 			//Here I am loading in the pdf we are using as well as creating the new output pdf.
 			originalPdf = PDDocument.load(pdfFile);
+		println "load old"
 		outPdf = new PDDocument();
+		println "made new"
 		//This is the layer utility we use to set the position of each pdf on the larger page.
 		LayerUtility layerUtility = new LayerUtility(outPdf)
 			//Grab the first page from the pdf.
