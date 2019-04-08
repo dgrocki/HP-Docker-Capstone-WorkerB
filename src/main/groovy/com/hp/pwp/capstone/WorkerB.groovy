@@ -17,7 +17,6 @@ class WorkerB{
 			PDFFormat imposition = new PDFFormat();
 			imposition.start(s);	
 
-			sleep(1000);
 			println "after sleep";
 			beanstalk.send_to_work_manager(s);
 		}
