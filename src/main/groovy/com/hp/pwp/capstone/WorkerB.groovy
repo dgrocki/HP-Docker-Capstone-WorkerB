@@ -10,6 +10,7 @@ class WorkerB{
 		BeanstalkClient beanstalk = new BeanstalkClient();  
 		while(1){
 
+			println "Before";
 			String s = beanstalk.recieve_new_work();
 		
 			println "Recieved from workerManager: " + s;

@@ -6,7 +6,8 @@ import com.surftools.BeanstalkClient.BeanstalkException
 
 
 class BeanstalkClient{
-	private ClientImpl connection = new ClientImpl("0.0.0.0", 11300);
+	//private ClientImpl connection = new ClientImpl("0.0.0.0", 11300);
+	private ClientImpl connection = new ClientImpl("beanstalk", 11300);
 	private JobImpl currentJob;	//can we only be working on one job at a time?
 	public List<String> listTubes(){
 		connection.useTube("riak")
