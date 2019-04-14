@@ -7,11 +7,25 @@ import com.surftools.BeanstalkClient.BeanstalkException
 
 class BeanstalkClient{
 	//private ClientImpl connection = new ClientImpl("0.0.0.0", 11300);
-	private ClientImpl connection = new ClientImpl("beanstalk", 11300);
-	private JobImpl currentJob;	//can we only be working on one job at a time?
+
+	private String pod_id;
+	private ClientImpl connection;
+	private JobImpl currentJob;     //can we only be working on one job at a time?
+	private String riak;
+	private String worker_b;
+	private String status;
+
+	public BeanstalkClient(){
+		pod_id = System.getenv("POD_NAME");
+		println pod_id;
+		connection  = new ClientImpl("beanstalk", 11300);
+		riak = "riak" + pod_id;
+		worker_b = "to_worker_b" + pod_id;
+		status = "status" + pod_id;
+	}
+
 	public List<String> listTubes(){
-		connection.useTube("riak")
-			return connection.listTubes();
+		return connection.listTubes();
 	}
 
 	public void sendWork(String json){
@@ -28,8 +42,8 @@ class BeanstalkClient{
 	}
 	//pull a new job off the the to_worker_b queue
 	public String recieve_new_work(){
-		connection.watch("to_worker_b");
-			
+		connection.watch(worker_b);
+
 		JobImpl job = connection.reserve();
 		String s = new String(job.data);
 		connection.delete(job.jobId);
@@ -37,19 +51,12 @@ class BeanstalkClient{
 	}
 	//put a new job on the riak queue
 	public void send_to_work_manager(String json){
-		connection.useTube("riak");
+		connection.useTube(riak);
 		sendWork(json);
-
-		connection.watch("riak");
-	//	JobImpl job = connection.reserve();
-	//	String s = new String(job.data);
-	//	println s;
-			
-		
 	}
 	//put a job on the status queue
 	public void send_status(String json){
-		connection.usetTube("status");
+		connection.usetTube(status);
 		sendWork(json);
 	}
 
